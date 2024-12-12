@@ -640,6 +640,7 @@ class SearXNG(dspy.Retrieve):
         searxng_api_key=None,
         k=3,
         is_valid_source: Callable = None,
+        language: str = "en",
     ):
         """Initialize the SearXNG search retriever.
         Please set up SearXNG according to https://docs.searxng.org/index.html.
@@ -657,7 +658,7 @@ class SearXNG(dspy.Retrieve):
         self.searxng_api_url = searxng_api_url
         self.searxng_api_key = searxng_api_key
         self.usage = 0
-
+        self.language = language
         if is_valid_source:
             self.is_valid_source = is_valid_source
         else:
@@ -695,7 +696,7 @@ class SearXNG(dspy.Retrieve):
 
         for query in queries:
             try:
-                params = {"q": query, "format": "json"}
+                params = {"q": query, "format": "json", "language": self.language}
                 response = requests.get(
                     self.searxng_api_url, headers=headers, params=params
                 )
