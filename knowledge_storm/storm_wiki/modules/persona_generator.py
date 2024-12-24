@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from typing import Union, List
 
@@ -10,7 +11,11 @@ from bs4 import BeautifulSoup
 def get_wiki_page_title_and_toc(url):
     """Get the main title and table of contents from an url of a Wikipedia page."""
 
-    response = requests.get(url)
+    http_proxy = os.getenv("http_proxy")
+    if http_proxy is None:
+        response = requests.get(url)
+    else:
+        response = requests.get(url, proxies={"http": http_proxy, "https": http_proxy})
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Get the main title from the first h1 tag

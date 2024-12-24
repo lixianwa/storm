@@ -26,6 +26,32 @@ from knowledge_storm import STORMWikiRunnerArguments, STORMWikiRunner, STORMWiki
 from knowledge_storm.lm import DeepSeekModel
 from knowledge_storm.rm import YouRM, BingSearch, BraveRM, SerperRM, DuckDuckGoSearchRM, TavilySearchRM, SearXNG
 from knowledge_storm.utils import load_api_key
+from knowledge_storm.storm_wiki.modules.callback import BaseCallbackHandler
+
+class ConsoleCallbackHandler(BaseCallbackHandler):
+    def on_identify_perspective_start(self, **kwargs):
+        print("on_identify_perspective_start", kwargs)
+
+    def on_identify_perspective_end(self, perspectives: list[str], **kwargs):
+        print("on_identify_perspective_end", perspectives)
+
+    def on_information_gathering_start(self, **kwargs):
+        print("on_information_gathering_start", kwargs)
+
+    def on_dialogue_turn_end(self, dlg_turn, **kwargs):
+        print("on_dialogue_turn_end", dlg_turn.log())
+
+    def on_information_gathering_end(self, **kwargs):
+        print("on_information_gathering_end", kwargs)
+
+    def on_information_organization_start(self, **kwargs):
+        print("on_information_organization_start", kwargs)
+
+    def on_direct_outline_generation_end(self, outline: str, **kwargs):
+        print("on_direct_outline_generation_end", outline)
+
+    def on_outline_refinement_end(self, outline: str, **kwargs):
+        print("on_outline_refinement_end", outline)
 
 
 def sanitize_topic(topic):
@@ -95,7 +121,7 @@ def main(args):
         case 'brave':
             rm = BraveRM(brave_search_api_key=os.getenv('BRAVE_API_KEY'), k=engine_args.search_top_k)
         case 'duckduckgo':
-            rm = DuckDuckGoSearchRM(k=engine_args.search_top_k, safe_search='On', region='us-en')
+            rm = DuckDuckGoSearchRM(k=engine_args.search_top_k, safe_search='On', region='cn-zh')
         case 'serper':
             rm = SerperRM(serper_search_api_key=os.getenv('SERPER_API_KEY'), query_params={'autocorrect': True, 'num': 10, 'page': 1})
         case 'tavily':
@@ -118,6 +144,7 @@ def main(args):
             do_generate_article=args.do_generate_article,
             do_polish_article=args.do_polish_article,
             remove_duplicate=args.remove_duplicate,
+            callback_handler=ConsoleCallbackHandler(),
         )
         runner.post_run()
         runner.summary()
